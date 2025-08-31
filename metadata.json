@@ -1,0 +1,6 @@
+{
+  "name": "Freetic",
+  "description": "A Netflix-style book app for discovering transformative books on psychology, philosophy, finance, and self-growth. Featuring rich visuals, summaries, and personalized shelves.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

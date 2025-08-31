@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Freetic</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/2.0.16/24/outline/styles.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --netflix-dark: #000000; /* OLED-optimized true black for deep immersion */
+      --netflix-dark-secondary: #1a1a1a; /* For elements like cards if needed, or darker sections */
+      --netflix-red: #E50914;
+      --netflix-text-primary: #FFFFFF;
+      --netflix-text-secondary: #B3B3B3;
+      --netflix-text-muted: #808080;
+      --netflix-card-bg: #2F2F2F; /* Slightly lighter than secondary background */
+      --netflix-hover-bg: #404040; /* Slightly lighter than card for hover */
+      --sky-blue: #87CEEB; /* Standard sky blue */
+      --sky-blue-active: #65b2d8; /* Darker/more saturated sky blue for active/hover */
+      --narration-blue: #0077b6; /* A deep, bold blue for the narration feature */
+      --narration-blue-glow: rgba(0, 119, 182, 0.4);
+      /* New Premium Navbar Variables */
+      --premium-gold: #E0C28A;
+      --premium-gold-glow: rgba(224, 194, 138, 0.15);
+      --premium-dark-bg: rgba(18, 18, 18, 0.65);
+      --premium-border: rgba(255, 255, 255, 0.1);
+      /* New Gradient Background Variables */
+      --premium-bg-start: rgba(10, 10, 22, 0.75); /* Dark navy-black */
+      --premium-bg-mid: rgba(18, 18, 18, 0.70); /* Mid-point black */
+      --premium-bg-end: rgba(40, 10, 15, 0.75); /* Dark red-black */
+    }
+
+    /* Custom scrollbar for webkit browsers */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--netflix-dark-secondary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #555; /* Darker gray for thumb */
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--netflix-text-muted);
+    }
+    /* For Firefox */
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: #555 var(--netflix-dark-secondary);
+    }
+    /* Ensure body takes full height for sticky footer and dark theme */
+    body {
+      min-height: 100vh;
+      background-color: var(--netflix-dark);
+      color: var(--netflix-text-primary);
+      font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+    #root {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* --- Premium Navbar Redesign --- */
+    .premium-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: linear-gradient(110deg, var(--premium-bg-start), var(--premium-bg-mid) 45%, var(--premium-bg-end) 90%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid transparent;
+      /* Simulates a polished edge */
+      border-image: linear-gradient(to right, transparent, var(--premium-border), transparent) 1;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      height: 5.5rem; /* More presence */
+      transition: height 0.3s ease-in-out, background-color 0.3s ease;
+    }
+
+    .premium-navbar.scrolled {
+      height: 4.25rem;
+      background: linear-gradient(110deg, rgba(5, 5, 15, 0.85), rgba(10, 10, 10, 0.80) 45%, rgba(25, 5, 10, 0.85)); /* Darker on scroll */
+    }
+
+    /* --- Animated Logo Subheading --- */
+    .typing-subheading-wrapper {
+      padding-bottom: 5px; /* Fine-tune vertical alignment */
+      white-space: nowrap;
+    }
+
+    .typing-subheading-char {
+        display: inline-block;
+        opacity: 0;
+        color: var(--netflix-red);
+        font-size: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.075em;
+        text-transform: uppercase;
+        text-shadow: 0 0 6px rgba(229, 9, 20, 0.6);
+        transform: translateY(4px);
+        animation: subheading-type-in 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes subheading-type-in {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .typing-subheading-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 0.8em;
+        margin-left: 4px;
+        background-color: var(--netflix-red);
+        box-shadow: 0 0 8px var(--netflix-red);
+        border-radius: 1px;
+        animation: smooth-blink 1.2s ease-in-out infinite;
+        vertical-align: text-bottom;
+    }
+
+    .premium-nav-link {
+      color: var(--netflix-text-secondary);
+      font-weight: 500;
+      letter-spacing: 0.025em; /* Subtle spacing */
+      padding: 0.75rem 1.25rem;
+      border-radius: 999px; /* Pill shape for the glowing background */
+      position: relative;
+      overflow: hidden;
+      transition: color 0.3s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .premium-nav-link:hover {
+      color: var(--premium-gold);
+      transform: translateY(-2px);
+    }
+
+    .premium-nav-link::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: radial-gradient(circle, var(--premium-gold-glow) 0%, transparent 70%);
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .premium-nav-link:hover::before, .premium-nav-link.active::before {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .premium-nav-link.active {
+      color: var(--premium-gold);
+    }
+
+    .premium-icon-btn {
+      color: var(--netflix-text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: color 0.3s ease, transform 0.2s ease;
+    }
+
+    .premium-icon-btn:hover {
+      color: var(--premium-gold);
+      transform: scale(1.1);
+    }
+
+    .premium-icon-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--premium-gold-glow) 0%, transparent 70%);
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .premium-icon-btn:hover::before {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* --- Premium Mobile Menu --- */
+    @keyframes slideInFromRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    .mobile-menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background-color: rgba(10, 10, 10, 0.5);
+      animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .mobile-menu-pane-premium {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 80%;
+      max-width: 300px;
+      background: var(--premium-dark-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-left: 1px solid var(--premium-border);
+      box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+      animation: slideInFromRight 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 6rem 2rem 2rem;
+    }
+
+    .mobile-menu-pane-premium .premium-nav-link {
+      font-size: 1.25rem;
+      text-align: center;
+      width: 100%;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeInSlideUp 0.5s ease-out forwards;
+    }
+
+    /* Netflix Red Button Style */
+    .netflix-red-button {
+      background-color: var(--netflix-red);
+      color: var(--netflix-text-primary);
+      transition: background-color 0.2s ease-in-out;
+    }
+    .netflix-red-button:hover {
+      background-color: #f40612; /* Slightly brighter red on hover */
+    }
+    .text-netflix-red {
+      color: var(--netflix-red);
+    }
+
+    /* Replaces sky-blue-button */
+    .primary-action-button {
+      background-color: var(--netflix-red);
+      color: var(--netflix-text-primary);
+      transition: background-color 0.2s ease-in-out;
+    }
+    .primary-action-button:hover {
+      background-color: #f40612; /* Slightly brighter red on hover */
+    }
+    
+    /* Signature red border for specific cards */
+    .red-signature-border {
+      box-shadow: 0 0 0 3px var(--netflix-red); /* Netflix Red */
+    }
+
+    /* Animation for modal and other pop-ins */
+    @keyframes fadeIn { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+
+    /* Hide scrollbar utility (used in carousels) */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Auto-moving category bar animation */
+    @keyframes scrollLeft {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); } /* Scrolls one full set of the original categories */
+    }
+
+    .animate-auto-scroll-categories {
+      animation: scrollLeft 40s linear infinite; 
+    }
+
+    .category-bar-hover-pause:hover .animate-auto-scroll-categories {
+      animation-play-state: paused;
+    }
+
+    /* Homepage Slogan Animations */
+    @keyframes fadeInSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-slogan {
+      opacity: 0; /* Start hidden before animation */
+      animation: fadeInSlideUp 0.8s ease-out 0.2s forwards;
+    }
+    
+    /* Word-by-word slogan animation */
+    @keyframes fadeInSlideUpWord {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .slogan-word {
+        display: inline-block;
+        opacity: 0;
+        animation: fadeInSlideUpWord 0.6s ease-out forwards;
+    }
+
+    .slogan-underline {
+      height: 2px;
+      background-color: var(--netflix-red);
+      margin: 1rem auto 0;
+      width: 0;
+      opacity: 0;
+      animation: expandUnderline 0.7s ease-out 1.6s forwards; /* Delayed to start after word-by-word animation */
+    }
+
+    @keyframes expandUnderline {
+      from {
+        width: 0;
+        opacity: 0;
+      }
+      to {
+        width: 80px;
+        opacity: 1;
+      }
+    }
+    
+    /* Sky Blue Action Button Style (for external purchase) */
+    .sky-blue-action-button {
+      background-color: var(--sky-blue);
+      color: var(--netflix-dark-secondary);
+      font-weight: 600;
+      border-radius: 0.5rem; /* soft rounded corners */
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px -5px rgba(135, 206, 235, 0.4); /* depth shadow */
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sky-blue-action-button:hover {
+      background-color: var(--sky-blue-active);
+      box-shadow: 0 8px 25px -5px rgba(135, 206, 235, 0.6); /* enhanced glow */
+      transform: translateY(-2px);
+    }
+    
+    .sky-blue-action-button .book-icon-pulse {
+        display: inline-block; /* Needed for transform */
+    }
+
+    .sky-blue-action-button:hover .book-icon-pulse {
+      animation: pulse-icon 1.5s infinite;
+    }
+
+    @keyframes pulse-icon {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    /* New Footer Styles */
+    .app-footer {
+      background-color: var(--netflix-dark); 
+      color: var(--netflix-text-muted);
+      padding: 3rem 2rem;
+      text-align: center;
+      margin-top: auto; 
+      opacity: 0.2; 
+      transform: translateY(20px); 
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out; 
+    }
+
+    .app-footer.footer-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer-content-wrapper {
+      max-width: 700px; 
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .footer-copyright {
+      font-size: 0.85rem;
+      color: var(--netflix-text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-tagline {
+      color: var(--netflix-red);
+      font-weight: bold;
+      font-size: clamp(0.9rem, 1.5vw, 1.2rem); 
+      text-shadow: 0 0 5px var(--netflix-red), 0 0 8px var(--netflix-red); 
+    }
+
+    /* --- Futuristic Search Overlay --- */
+    .search-overlay-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(10, 10, 10, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start; /* Align to top */
+      padding: 15vh 1rem 1rem;
+      animation: fadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .search-overlay-container {
+      width: 100%;
+      max-width: 600px; /* Wider search area */
+      position: relative;
+      animation: slideDownFade 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .search-overlay-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      font-size: clamp(1.75rem, 5vw, 2.5rem); /* Responsive font size */
+      font-weight: 500;
+      padding: 0.5rem 0.75rem;
+      outline: none;
+      text-align: center;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .search-overlay-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .search-overlay-input:focus {
+      border-bottom-color: var(--netflix-red);
+      box-shadow: 0 4px 20px -5px rgba(229, 9, 20, 0.5);
+    }
+
+    .search-overlay-close-btn {
+      position: absolute;
+      top: -60px; /* Position above the search input */
+      right: 0;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .search-overlay-close-btn:hover {
+      color: white;
+      transform: rotate(90deg) scale(1.1);
+    }
+
+    .search-suggestions-list {
+      margin-top: 1.5rem;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    .search-suggestion-item {
+      display: flex;
+      width: 100%;
+      text-align: left;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      background-color: rgba(255,255,255,0.05);
+      border: 1px solid transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .search-suggestion-item:hover {
+      background-color: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    @keyframes slideDownFade {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    
+    /* Admin Login Modal Styles */
+    .admin-login-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.75); /* Darker backdrop */
+      backdrop-filter: blur(4px);
+      z-index: 50; /* Ensure it's above other content */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .admin-login-modal-container {
+      background-color: var(--netflix-dark-secondary);
+      color: var(--netflix-text-primary);
+      padding: 1.5rem; /* 24px */
+      border-radius: 0.5rem; /* 8px */
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 28rem; /* 448px */
+      position: relative;
+      /* Using animate-fadeIn from existing modal styles */
+    }
+
+    .admin-login-modal-input {
+      width: 100%;
+      padding: 0.75rem 1rem; /* 12px 16px */
+      background-color: #333; /* Darker input background */
+      color: var(--netflix-text-primary);
+      border: 1px solid #444; /* Slightly lighter border for contrast */
+      border-radius: 0.375rem; /* 6px */
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .admin-login-modal-input:focus {
+      border-color: var(--netflix-red);
+      box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.5); /* Netflix red focus ring */
+    }
+
+    .admin-login-modal-error {
+      color: var(--netflix-red);
+      background-color: rgba(229, 9, 20, 0.1);
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem; /* 14px */
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    /* Animated Freetic Logo Styles */
+    .f-logo-svg {
+      filter: drop-shadow(0 0 3px #C8102E); /* Less bright glow */
+    }
+
+    .f-logo-path {
+      stroke: #C8102E; /* A deeper, "clearer" red */
+      fill: none;
+      stroke-dasharray: 60; /* A bit more than the estimated path length (53) */
+      stroke-dashoffset: 60; /* Start with the path hidden */
+      animation: drawF 7s ease-in-out infinite; /* Updated duration */
+    }
+
+    @keyframes drawF {
+      0% {
+        stroke-dashoffset: 60;
+      }
+      30% { /* Animation completes in ~2.1s of the 7s cycle */
+        stroke-dashoffset: 0;
+      }
+      100% { /* Holds for the remaining ~4.9s, then resets on loop */
+        stroke-dashoffset: 0;
+      }
+    }
+    
+    /* New class for the Tic-Tac-Toe title */
+    .premium-title-red {
+      color: var(--netflix-red);
+      font-weight: 700; /* Bold */
+      text-shadow: 0 0 8px rgba(229, 9, 20, 0.5), 0 0 4px rgba(255, 255, 255, 0.1);
+    }
+
+    /* New class for the AI Recommender background */
+    .ai-recommender-background {
+      background: radial-gradient(ellipse at 50% 0%, rgba(15, 23, 42, 0.6) 0%, var(--netflix-dark) 80%); /* Navy to black */
+      border: 1px solid rgba(129, 140, 153, 0.2); /* Faint border */
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3), inset 0 0 20px rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(5px);
+    }
+    
+    /* Animations for new TicTacToe game */
+    @keyframes draw-line {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+    @keyframes pop-in {
+      from {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .animate-pop-in {
+      animation: pop-in 0.3s ease-out forwards;
+    }
+    .fade-in-overlay {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    /* Style for sections with a prominent left accent line */
+    .highlight-section-with-accent {
+      border-left: 5px solid var(--netflix-red);
+    }
+
+    /* Style for the core idea quote */
+    .core-idea-quote {
+      position: relative;
+      padding-left: 1.5rem; /* 24px */
+    }
+    
+    .core-idea-quote p {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-style: italic;
+      position: relative;
+    }
+
+    .core-idea-quote p::before {
+      content: '“';
+      position: absolute;
+      left: -1rem; /* Adjust to sit nicely in the padding area */
+      top: -0.5rem;
+      font-size: 3rem; /* 48px */
+      line-height: 1;
+      color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* AI Recommender 3D reveal animation */
+    @keyframes reveal-3d-in {
+        from {
+            opacity: 0;
+            transform: perspective(1000px) rotateX(-20deg) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: perspective(1000px) rotateX(0deg) scale(1);
+        }
+    }
+
+    .animate-reveal-3d {
+        animation: reveal-3d-in 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        transform-origin: top center;
+    }
+
+    /* AI Helper Widget Styles */
+    .ai-widget-trigger {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 60px;
+        height: 60px;
+        background-color: var(--netflix-red);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4);
+        z-index: 1000;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out, background-color 0.2s;
+        border: none;
+    }
+    .ai-widget-trigger:hover {
+        transform: scale(1.1);
+        background-color: #f40612;
+    }
+
+    .ai-widget-container {
+        position: fixed;
+        bottom: 7rem;
+        right: 2rem;
+        width: 90vw;
+        max-width: 400px;
+        height: 70vh;
+        max-height: 550px;
+        background-color: #181818;
+        border-radius: 12px;
+        box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.7), 0 10px 40px rgba(0,0,0,0.5);
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transform-origin: bottom right;
+    }
+
+    @media (max-width: 640px) {
+        .ai-widget-container {
+            bottom: 6rem;
+            right: 1rem;
+            width: calc(100vw - 2rem);
+        }
+        .ai-widget-trigger {
+            bottom: 1rem;
+            right: 1rem;
+        }
+    }
+
+    .ai-widget-header {
+        background-color: #222;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #333;
+        flex-shrink: 0;
+    }
+
+    .ai-widget-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .ai-message {
+        display: flex;
+        max-width: 90%;
+    }
+    .ai-message-user {
+        align-self: flex-end;
+    }
+    .ai-message-model {
+        align-self: flex-start;
+    }
+    .message-content {
+        padding: 0.6rem 1rem;
+        border-radius: 18px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    .ai-message-user .message-content {
+        background-color: #333;
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+    .ai-message-model .message-content {
+        background-color: var(--netflix-red);
+        color: white;
+        border-bottom-left-radius: 4px;
+    }
+    .ai-message-model .message-content a {
+        color: #fff;
+        text-decoration: underline;
+    }
+    .ai-message-model .message-content ul {
+        list-style-type: disc;
+        padding-left: 1.25rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .ai-message-model .message-content p {
+        margin-bottom: 0.5rem;
+    }
+    .ai-message-model .message-content p:last-child {
+        margin-bottom: 0;
+    }
+
+
+    .ai-widget-input-area {
+        padding: 1rem;
+        border-top: 1px solid #333;
+        background-color: #181818;
+        flex-shrink: 0;
+    }
+
+    .ai-widget-input {
+        flex-grow: 1;
+        background-color: #333;
+        color: white;
+        border: 1px solid #444;
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+    .ai-widget-input:focus {
+        border-color: var(--netflix-red);
+        box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.5);
+    }
+    .ai-widget-input:disabled {
+        opacity: 0.6;
+    }
+
+    .ai-widget-send-button {
+      background-color: var(--netflix-red);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 44px; /* Increased for better touch target */
+      height: 44px; /* Increased for better touch target */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .ai-widget-send-button:hover {
+        background-color: #f40612;
+    }
+    .ai-widget-send-button:disabled {
+        background-color: #555;
+        cursor: not-allowed;
+    }
+
+    @keyframes widget-in {
+        from {
+            opacity: 0;
+            transform: scale(0.5) translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    .animate-widget-in {
+        animation: widget-in 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    /* APK Download Section */
+    .apk-download-container {
+        background: rgba(20, 20, 20, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    @keyframes slide-up {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    .animate-slide-up {
+        animation: slide-up 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    /* Shine effect for APK Download Button */
+    .button-shine-effect {
+        position: relative;
+        overflow: hidden;
+    }
+    .button-shine-effect::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 120%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transform: skewX(-25deg);
+        transition: left 0.7s ease-in-out;
+    }
+    .button-shine-effect:hover::after {
+        left: 150%;
+    }
+
+    /* Auto-rotating quote section styles */
+    .quote-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .quote-animation {
+      animation: quote-fade-cycle 7s ease-in-out forwards;
+    }
+
+    @keyframes quote-fade-cycle {
+      0% {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      15% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      85% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+    }
+
+    /* --- New Testimonial Carousel Styles --- */
+    .testimonial-section-v2 {
+      padding: 4rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .testimonial-marquee-content {
+      display: flex;
+      width: max-content;
+      animation: scroll-testimonials-left 150s linear infinite;
+    }
+
+    .testimonial-section-v2:hover .testimonial-marquee-content {
+      animation-play-state: paused;
+    }
+    
+    @keyframes scroll-testimonials-left {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .testimonial-card-v2 {
+      position: relative;
+      background: rgba(18, 18, 18, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      /* FLUID SCALING: Use clamp() for smooth responsiveness */
+      padding: clamp(1.5rem, 4vw, 3rem);
+      width: clamp(300px, 35vw, 500px);
+      margin: 0 clamp(1rem, 2vw, 1.5rem);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 14rem;
+      overflow: hidden;
+      animation: ambient-glow 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes ambient-glow {
+      0% {
+        box-shadow: 0 0 20px -5px rgba(229, 9, 20, 0.1), inset 0 0 5px rgba(229, 9, 20, 0.05);
+      }
+      100% {
+        box-shadow: 0 0 35px -5px rgba(229, 9, 20, 0.25), inset 0 0 10px rgba(229, 9, 20, 0.1);
+      }
+    }
+
+    .testimonial-card-v2::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--netflix-red);
+      box-shadow: 0 0 8px var(--netflix-red);
+    }
+    
+    .testimonial-content-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .testimonial-content-wrapper::before {
+        content: '';
+        position: absolute;
+        inset: -24px;
+        background: rgba(10, 10, 10, 0.4);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+        z-index: 0;
+        border-radius: 1rem;
+    }
+
+    .quote-text-v2 {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: clamp(1.25rem, 3vw, 1.75rem);
+      line-height: 1.6;
+      font-style: italic;
+      color: var(--netflix-text-primary);
+      text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      opacity: 1;
+    }
+
+    .author-badge {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      padding: 0.35rem 0.85rem;
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.3), rgba(30, 30, 30, 0.3));
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-style: normal;
+      font-weight: 500;
+      color: var(--netflix-text-secondary);
+      backdrop-filter: blur(4px);
+      z-index: 1;
+      opacity: 1;
+    }
+
+    .testimonial-progress-bar-container, .testimonial-progress-bar {
+      display: none;
+    }
+
+    /* Auto Read Narration Feature Styles */
+    .auto-read-button {
+      background-color: var(--narration-blue);
+      color: white;
+      font-weight: 600;
+      border-radius: 0.375rem; /* rounded-md */
+      padding: 0.6rem 1.25rem;
+      transition: all 0.2s ease-in-out;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+    }
+    .auto-read-button:hover {
+      background-color: #005a8d;
+      box-shadow: 0 0 15px var(--narration-blue-glow);
+    }
+    .auto-read-button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .narration-player {
+      background-color: rgba(10, 20, 30, 0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 119, 182, 0.3);
+      border-radius: 0.75rem; /* rounded-xl */
+      padding: 1rem;
+      box-shadow: 0 5px 25px var(--narration-blue-glow);
+    }
+    
+    .narration-player-progress-bar {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .narration-player-progress-bar::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--sky-blue);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 5px var(--sky-blue);
+    }
+
+    .narration-player-progress-bar::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: var(--sky-blue);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 5px var(--sky-blue);
+    }
+
+    .narration-player-button {
+      background: transparent;
+      border: none;
+      color: var(--netflix-text-secondary);
+      cursor: pointer;
+      transition: color 0.2s, transform 0.2s;
+      padding: 0.5rem;
+    }
+
+    .narration-player-button:hover {
+      color: white;
+      transform: scale(1.1);
+    }
+    .narration-player-button:disabled {
+      color: #555;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .narration-player-button.play-pause {
+      background-color: var(--narration-blue);
+      color: white;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+     .narration-player-button.play-pause:hover {
+        background-color: #005a8d;
+     }
+
+    /* --- Rich Text Editor Styles --- */
+    .rich-text-editor-container {
+        background-color: var(--netflix-dark-secondary);
+        border: 1px solid #444; /* Slightly lighter border for contrast */
+        border-radius: 0.375rem; /* rounded-md */
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .rich-text-editor-container:focus-within {
+        border-color: var(--netflix-red);
+        box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.5);
+    }
+    .rich-text-editor-toolbar {
+        display: flex;
+        gap: 0.25rem;
+        padding: 0.5rem;
+        border-bottom: 1px solid #444;
+        background-color: #333;
+    }
+    .rich-text-editor-content {
+        min-height: 120px;
+        padding: 0.75rem 1rem;
+        color: var(--netflix-text-primary);
+        outline: none;
+        line-height: 1.6;
+    }
+    .rich-text-editor-content:empty:before {
+        content: attr(data-placeholder);
+        color: var(--netflix-text-muted);
+        pointer-events: none;
+        display: block;
+    }
+    .rich-text-editor-content a {
+        color: var(--sky-blue);
+        text-decoration: underline;
+    }
+
+    /* --- Rendered Rich Text Styles --- */
+    .rendered-rich-text a {
+        color: var(--sky-blue);
+        text-decoration: underline;
+        transition: color 0.2s;
+    }
+    .rendered-rich-text a:hover {
+        color: var(--sky-blue-active);
+    }
+    .rendered-rich-text p { margin-bottom: 1em; }
+    .rendered-rich-text p:last-child { margin-bottom: 0; }
+    .rendered-rich-text strong { font-weight: bold; }
+    .rendered-rich-text em { font-style: italic; }
+    .rendered-rich-text u { text-decoration: underline; }
+
+    /* --- Styles for Smooth Typing Title in Modal --- */
+    .typing-title-char {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(8px) scale(0.95); /* Start from slightly below */
+        animation: smooth-type-in 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes smooth-type-in {
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .typing-cursor-smooth {
+        display: inline-block;
+        width: 3px;
+        height: 1.1em;
+        margin-left: 5px;
+        background-color: var(--netflix-red);
+        box-shadow: 0 0 10px var(--netflix-red);
+        border-radius: 2px;
+        animation: smooth-blink 1.2s ease-in-out infinite;
+        vertical-align: text-bottom;
+    }
+
+    @keyframes smooth-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+    
+    /* --- Language Selector & New Translate Button --- */
+    .language-selector-ai {
+      background-color: #333;
+      color: var(--netflix-text-primary);
+      border: 1px solid #555;
+      border-radius: 0.375rem; /* rounded-md */
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .language-selector-ai:focus {
+      border-color: var(--netflix-red);
+      box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.5);
+    }
+
+    .simple-translate-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background-color: rgba(229, 9, 20, 0.1);
+      color: var(--netflix-red);
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      font-weight: 500;
+      font-size: 0.8rem;
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .simple-translate-btn:hover {
+      background-color: rgba(229, 9, 20, 0.2);
+      border-color: var(--netflix-red);
+      transform: translateY(-1px);
+    }
+    
+    /* --- Footer Divider --- */
+    .footer-divider {
+        height: 1px;
+        background-color: rgba(229, 9, 20, 0.5); /* var(--netflix-red) with 50% opacity */
+        box-shadow: 0 0 10px 1px var(--netflix-red);
+    }
+
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.3",
+    "@heroicons/react/": "https://esm.sh/@heroicons/react@^2.2.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.8.0",
+    "firebase/": "https://esm.sh/firebase@^11.10.0/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.525.0",
+    "marked": "https://esm.sh/marked@^13.0.2",
+    "wouter/": "https://esm.sh/wouter@^3.7.1/",
+    "wouter": "https://esm.sh/wouter@^3.7.1",
+    "@firebase/database": "https://esm.sh/@firebase/database@^1.1.0",
+    "@firebase/storage": "https://esm.sh/@firebase/storage@^0.14.0",
+    "@firebase/app": "https://esm.sh/@firebase/app@^0.14.0"
+  }
+}
+</script>
+</head>
+<body class="bg-black text-white"> 
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script></body>
+</html>
